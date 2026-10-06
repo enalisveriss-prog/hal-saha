@@ -6,77 +6,97 @@
 <style>
 *{box-sizing:border-box}body{margin:0;background:#0f172a;color:#fff;font-family:Arial,sans-serif}
 .app{max-width:560px;margin:auto;padding:14px}.header h1{font-size:21px;margin:2px 0 5px}.header p{margin:0 0 12px;color:#cbd5e1;font-size:13px}
-.controls{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
-.control{background:#1e293b;padding:9px;border-radius:12px}.control label{font-size:12px;color:#cbd5e1;display:block;margin-bottom:5px}
-select{width:100%;padding:9px;border:0;border-radius:8px;background:#334155;color:#fff;font-weight:bold}
-.pitch{position:relative;width:100%;aspect-ratio:.68;border:3px solid white;border-radius:16px;overflow:hidden;
-background:linear-gradient(90deg,#238b45 0 12.5%,#2b9b50 12.5% 25%,#238b45 25% 37.5%,#2b9b50 37.5% 50%,#238b45 50% 62.5%,#2b9b50 62.5% 75%,#238b45 75% 87.5%,#2b9b50 87.5%)}
-.mid{position:absolute;left:0;right:0;top:50%;border-top:2px solid #ffffffcc}
-.circle{position:absolute;left:50%;top:50%;width:27%;aspect-ratio:1;border:2px solid #ffffffaa;border-radius:50%;transform:translate(-50%,-50%)}
-.box{position:absolute;left:24%;width:52%;height:13%;border:2px solid #ffffffaa}.box.top{top:-2px}.box.bottom{bottom:-2px}
-.goal{position:absolute;left:38%;width:24%;height:3%;border:2px solid #fff}.goal.top{top:-2px}.goal.bottom{bottom:-2px}
+.status{font-size:11px;color:#94a3b8;margin:0 0 9px;text-align:center}.status.ok{color:#86efac}.status.err{color:#fca5a5}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}.control{background:#1e293b;padding:9px;border-radius:12px}
+.control label{font-size:12px;color:#cbd5e1;display:block;margin-bottom:5px}select{width:100%;padding:9px;border:0;border-radius:8px;background:#334155;color:#fff;font-weight:bold}
+.pitch{position:relative;width:100%;aspect-ratio:.68;border:3px solid white;border-radius:16px;overflow:hidden;background:linear-gradient(90deg,#238b45 0 12.5%,#2b9b50 12.5% 25%,#238b45 25% 37.5%,#2b9b50 37.5% 50%,#238b45 50% 62.5%,#2b9b50 62.5% 75%,#238b45 75% 87.5%,#2b9b50 87.5%)}
+.mid{position:absolute;left:0;right:0;top:50%;border-top:2px solid #ffffffcc}.circle{position:absolute;left:50%;top:50%;width:27%;aspect-ratio:1;border:2px solid #ffffffaa;border-radius:50%;transform:translate(-50%,-50%)}
+.box{position:absolute;left:24%;width:52%;height:13%;border:2px solid #ffffffaa}.box.top{top:-2px}.box.bottom{bottom:-2px}.goal{position:absolute;left:38%;width:24%;height:3%;border:2px solid #fff}.goal.top{top:-2px}.goal.bottom{bottom:-2px}
 .teamtag{position:absolute;left:8px;font-size:11px;font-weight:900;opacity:.7}.teamtag.a{top:8px}.teamtag.b{bottom:8px}
-.player{position:absolute;transform:translate(-50%,-50%);text-align:center;touch-action:none;cursor:grab;z-index:3;transition:left .2s,top .2s}
-.player.dragging{transition:none}.dot{width:39px;height:39px;border-radius:50%;display:grid;place-items:center;border:3px solid white;font-size:12px;font-weight:900;box-shadow:0 2px 8px #0008}
-.a .dot{background:#2563eb}.b .dot{background:#dc2626}.gk .dot{background:#facc15;color:#111827;border-color:#111827}
+.player{position:absolute;transform:translate(-50%,-50%);text-align:center;touch-action:none;cursor:grab;z-index:3;transition:left .2s,top .2s}.player.dragging{transition:none}
+.dot{width:39px;height:39px;border-radius:50%;display:grid;place-items:center;border:3px solid white;font-size:12px;font-weight:900;box-shadow:0 2px 8px #0008}.a .dot{background:#2563eb}.b .dot{background:#dc2626}.gk .dot{background:#facc15;color:#111827;border-color:#111827}
 .name{margin-top:2px;background:#0f172ddd;padding:3px 5px;border-radius:6px;font-size:10px;font-weight:bold;max-width:78px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.note{text-align:center;color:#94a3b8;font-size:11px;margin-top:9px}
-button{width:100%;margin-top:9px;border:0;border-radius:10px;padding:10px;background:#334155;color:#fff;font-weight:bold}
+.note{text-align:center;color:#94a3b8;font-size:11px;margin-top:9px}.buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+button{width:100%;margin-top:9px;border:0;border-radius:10px;padding:11px;background:#334155;color:#fff;font-weight:bold}.share{background:#16a34a}
 </style>
 </head>
 <body>
 <div class="app">
  <div class="header"><h1>⚽ 8'e 8 Halı Saha</h1><p>Mavi Takım vs Kırmızı Takım • Oyuncuya dokunarak ismini değiştir.</p></div>
+ <div id="status" class="status">Ortak kadro yükleniyor...</div>
  <div class="controls">
   <div class="control"><label>🔵 Mavi Takım Dizilişi</label><select id="formA"></select></div>
   <div class="control"><label>🔴 Kırmızı Takım Dizilişi</label><select id="formB"></select></div>
  </div>
- <div class="pitch" id="pitch">
-   <div class="mid"></div><div class="circle"></div><div class="box top"></div><div class="box bottom"></div>
-   <div class="goal top"></div><div class="goal bottom"></div><div class="teamtag a">MAVİ TAKIM</div><div class="teamtag b">KIRMIZI TAKIM</div>
- </div>
- <div class="note">Oyuncular sürüklenebilir ancak kendi yarı sahalarının dışına çıkamaz.</div>
- <button onclick="applyAll()">Dizilişleri Sıfırla</button>
+ <div class="pitch" id="pitch"><div class="mid"></div><div class="circle"></div><div class="box top"></div><div class="box bottom"></div><div class="goal top"></div><div class="goal bottom"></div><div class="teamtag a">MAVİ TAKIM</div><div class="teamtag b">KIRMIZI TAKIM</div></div>
+ <div class="note">Değişiklikler ortak kadroya otomatik kaydolur. Oyuncular kendi yarı sahalarının dışına çıkamaz.</div>
+ <div class="buttons"><button onclick="resetFormations()">Dizilişleri Sıfırla</button><button class="share" onclick="shareSquad()">📸 Kadroyu Paylaş</button></div>
 </div>
-<script>
-const forms={
-"3-3-1":[[24,39],[50,37],[76,39],[22,25],[50,23],[78,25],[50,12]],
-"2-3-2":[[32,39],[68,39],[22,25],[50,23],[78,25],[35,12],[65,12]],
-"3-2-2":[[24,39],[50,37],[76,39],[35,25],[65,25],[35,12],[65,12]],
-"2-2-3":[[32,39],[68,39],[35,25],[65,25],[22,12],[50,10],[78,12]]
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+
+const firebaseConfig={
+ apiKey:"AIzaSyCfLJKCFc01LOciqaCLL03RxkzlIxUqg2M",
+ authDomain:"halisaha-d8207.firebaseapp.com",
+ projectId:"halisaha-d8207",
+ storageBucket:"halisaha-d8207.firebasestorage.app",
+ messagingSenderId:"292581767003",
+ appId:"1:292581767003:web:8de9549757fdc9e794c7e"
 };
-const pitch=document.getElementById("pitch"), selects=[document.getElementById("formA"),document.getElementById("formB")];
+const app=initializeApp(firebaseConfig),db=getFirestore(app),sharedRef=doc(db,"haliSaha","kadro");
+
+const forms={"3-3-1":[[24,39],[50,37],[76,39],[22,25],[50,23],[78,25],[50,12]],"2-3-2":[[32,39],[68,39],[22,25],[50,23],[78,25],[35,12],[65,12]],"3-2-2":[[24,39],[50,37],[76,39],[35,25],[65,25],[35,12],[65,12]],"2-2-3":[[32,39],[68,39],[35,25],[65,25],[22,12],[50,10],[78,12]]};
+const pitch=document.getElementById("pitch"),selects=[document.getElementById("formA"),document.getElementById("formB")],statusEl=document.getElementById("status");
 Object.keys(forms).forEach(f=>selects.forEach(s=>{let o=document.createElement("option");o.value=f;o.textContent=f;s.appendChild(o)}));
 selects[0].value="3-3-1";selects[1].value="2-3-2";
-let teams={A:[],B:[]};
-function createTeam(team){
- for(let i=0;i<8;i++){
-  let p=document.createElement("div");p.className=`player ${team==="A"?"a":"b"} ${i===0?"gk":""}`;
-  p.innerHTML=`<div class="dot">${i===0?"GK":i}</div><div class="name">${i===0?"Kaleci":"Oyuncu "+i}</div>`;
-  p.onclick=()=>{if(p.dataset.dragged==="1"){p.dataset.dragged="0";return}let n=prompt("Oyuncu adı:",p.querySelector(".name").textContent);if(n&&n.trim())p.querySelector(".name").textContent=n.trim()};
-  pitch.appendChild(p);teams[team].push(p);drag(p,team);
- }
-}
+let teams={A:[],B:[]},loaded=false,remoteApplying=false,saveTimer;
+
+function status(t,type=""){statusEl.textContent=t;statusEl.className="status "+type}
+function createTeam(team){for(let i=0;i<8;i++){let p=document.createElement("div");p.className=`player ${team==="A"?"a":"b"} ${i===0?"gk":""}`;p.innerHTML=`<div class="dot">${i===0?"GK":i}</div><div class="name">${i===0?"Kaleci":"Oyuncu "+i}</div>`;p.onclick=()=>{if(p.dataset.dragged==="1"){p.dataset.dragged="0";return}let n=prompt("Oyuncu adı:",p.querySelector(".name").textContent);if(n&&n.trim()){p.querySelector(".name").textContent=n.trim();queueSave()}};pitch.appendChild(p);teams[team].push(p);drag(p,team)}}
 function pos(p,x,y){p.style.left=x+"%";p.style.top=y+"%"}
-function apply(team,form){
- let ps=teams[team];
- if(team==="A"){pos(ps[0],50,5);forms[form].forEach((v,i)=>pos(ps[i+1],v[0],v[1]));}
- else{pos(ps[0],50,95);forms[form].forEach((v,i)=>pos(ps[i+1],100-v[0],100-v[1]));}
+function apply(team,form){let ps=teams[team];if(team==="A"){pos(ps[0],50,5);forms[form].forEach((v,i)=>pos(ps[i+1],v[0],v[1]))}else{pos(ps[0],50,95);forms[form].forEach((v,i)=>pos(ps[i+1],100-v[0],100-v[1]))}}
+function resetFormations(){apply("A",selects[0].value);apply("B",selects[1].value);queueSave()}
+window.resetFormations=resetFormations;
+selects[0].onchange=()=>{apply("A",selects[0].value);queueSave()};selects[1].onchange=()=>{apply("B",selects[1].value);queueSave()};
+
+function drag(p,team){let sx,sy,moved=false;p.addEventListener("pointerdown",e=>{sx=e.clientX;sy=e.clientY;moved=false;p.setPointerCapture(e.pointerId);p.classList.add("dragging")});p.addEventListener("pointermove",e=>{if(!p.hasPointerCapture(e.pointerId))return;if(Math.hypot(e.clientX-sx,e.clientY-sy)>5)moved=true;if(!moved)return;let r=pitch.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*100,y=(e.clientY-r.top)/r.height*100;x=Math.max(6,Math.min(94,x));y=team==="A"?Math.max(4,Math.min(46,y)):Math.max(54,Math.min(96,y));pos(p,x,y)});p.addEventListener("pointerup",()=>{p.classList.remove("dragging");p.dataset.dragged=moved?"1":"0";if(moved)queueSave()})}
+
+function state(){
+ const pack=t=>teams[t].map(p=>({name:p.querySelector(".name").textContent,x:parseFloat(p.style.left),y:parseFloat(p.style.top)}));
+ return {formA:selects[0].value,formB:selects[1].value,A:pack("A"),B:pack("B"),updatedAt:Date.now()};
 }
-function applyAll(){apply("A",selects[0].value);apply("B",selects[1].value)}
-selects[0].onchange=()=>apply("A",selects[0].value);selects[1].onchange=()=>apply("B",selects[1].value);
-function drag(p,team){
- let sx,sy,moved=false;
- p.addEventListener("pointerdown",e=>{sx=e.clientX;sy=e.clientY;moved=false;p.setPointerCapture(e.pointerId);p.classList.add("dragging")});
- p.addEventListener("pointermove",e=>{
-  if(!p.hasPointerCapture(e.pointerId))return;if(Math.hypot(e.clientX-sx,e.clientY-sy)>5)moved=true;if(!moved)return;
-  let r=pitch.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*100,y=(e.clientY-r.top)/r.height*100;
-  x=Math.max(6,Math.min(94,x));
-  y=team==="A"?Math.max(4,Math.min(46,y)):Math.max(54,Math.min(96,y));
-  pos(p,x,y);
- });
- p.addEventListener("pointerup",()=>{p.classList.remove("dragging");p.dataset.dragged=moved?"1":"0"});
+function applyState(d){
+ if(!d||!d.A||!d.B)return;remoteApplying=true;
+ if(forms[d.formA])selects[0].value=d.formA;if(forms[d.formB])selects[1].value=d.formB;
+ ["A","B"].forEach(t=>d[t].slice(0,8).forEach((v,i)=>{if(!teams[t][i])return;teams[t][i].querySelector(".name").textContent=v.name||((i===0)?"Kaleci":"Oyuncu "+i);if(Number.isFinite(v.x)&&Number.isFinite(v.y))pos(teams[t][i],v.x,v.y)}));
+ remoteApplying=false;
 }
-createTeam("A");createTeam("B");applyAll();
+function queueSave(){if(!loaded||remoteApplying)return;clearTimeout(saveTimer);status("Kaydediliyor...");saveTimer=setTimeout(saveNow,350)}
+async function saveNow(){try{await setDoc(sharedRef,state());status("✓ Ortak kadro kaydedildi","ok")}catch(e){console.error(e);status("Kayıt hatası: Firebase Rules kontrol edilmeli","err")}}
+
+async function start(){
+ createTeam("A");createTeam("B");apply("A","3-3-1");apply("B","2-3-2");
+ try{
+   const snap=await getDoc(sharedRef);
+   if(snap.exists())applyState(snap.data());else await setDoc(sharedRef,state());
+   loaded=true;status("✓ Ortak kadro hazır","ok");
+   onSnapshot(sharedRef,s=>{if(s.exists()&&loaded)applyState(s.data())},e=>{console.error(e);status("Bağlantı hatası","err")});
+ }catch(e){console.error(e);loaded=true;status("Firebase bağlantısı kurulamadı","err")}
+}
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+
+async function shareSquad(){
+ const W=1080,H=1590,top=150,bottom=70,c=document.createElement("canvas");c.width=W;c.height=H;const x=c.getContext("2d");
+ x.fillStyle="#0f172a";x.fillRect(0,0,W,H);x.fillStyle="white";x.textAlign="center";x.font="bold 50px Arial";x.fillText("8'e 8 HALI SAHA KADROSU",W/2,72);x.font="28px Arial";x.fillStyle="#cbd5e1";x.fillText(`Mavi ${selects[0].value}  •  Kırmızı ${selects[1].value}`,W/2,118);
+ const px=55,py=top,pw=W-110,ph=H-top-bottom;for(let i=0;i<8;i++){x.fillStyle=i%2?"#2b9b50":"#238b45";x.fillRect(px+i*pw/8,py,pw/8,ph)}
+ x.strokeStyle="white";x.lineWidth=5;x.strokeRect(px,py,pw,ph);x.globalAlpha=.75;x.beginPath();x.moveTo(px,py+ph/2);x.lineTo(px+pw,py+ph/2);x.stroke();x.beginPath();x.arc(W/2,py+ph/2,pw*.135,0,Math.PI*2);x.stroke();x.strokeRect(px+pw*.24,py,pw*.52,ph*.13);x.strokeRect(px+pw*.24,py+ph*.87,pw*.52,ph*.13);x.globalAlpha=1;
+ function dp(p,t){let xp=px+parseFloat(p.style.left)/100*pw,yp=py+parseFloat(p.style.top)/100*ph,n=p.querySelector(".name").textContent,g=p.classList.contains("gk");x.beginPath();x.arc(xp,yp,31,0,Math.PI*2);x.fillStyle=g?"#facc15":(t==="A"?"#2563eb":"#dc2626");x.fill();x.strokeStyle="white";x.lineWidth=4;x.stroke();x.font="bold 22px Arial";x.fillStyle=g?"#111827":"white";x.textAlign="center";x.textBaseline="middle";x.fillText(g?"GK":p.querySelector(".dot").textContent,xp,yp);x.font="bold 22px Arial";let tw=x.measureText(n).width;x.fillStyle="rgba(15,23,42,.88)";x.fillRect(xp-tw/2-12,yp+39,tw+24,32);x.fillStyle="white";x.textBaseline="alphabetic";x.fillText(n,xp,yp+64)}
+ teams.A.forEach(p=>dp(p,"A"));teams.B.forEach(p=>dp(p,"B"));
+ c.toBlob(async blob=>{const file=new File([blob],"hali-saha-kadrosu.png",{type:"image/png"});try{if(navigator.share&&(!navigator.canShare||navigator.canShare({files:[file]})))await navigator.share({files:[file],title:"Halı Saha Kadrosu"});else{const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=file.name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}}catch(e){if(e.name!=="AbortError")console.error(e)}},"image/png");
+}
+window.shareSquad=shareSquad;
+start();
 </script>
 </body></html>
