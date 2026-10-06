@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>7'ye 7 Halı Saha Kadrosu</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#0f172a;color:#fff;font-family:Arial,sans-serif}
+.app{max-width:560px;margin:auto;padding:14px}.header h1{font-size:21px;margin:2px 0 5px}.header p{margin:0 0 12px;color:#cbd5e1;font-size:13px}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.control{background:#1e293b;padding:9px;border-radius:12px}.control label{font-size:12px;color:#cbd5e1;display:block;margin-bottom:5px}
+select{width:100%;padding:9px;border:0;border-radius:8px;background:#334155;color:#fff;font-weight:bold}
+.pitch{position:relative;width:100%;aspect-ratio:.68;border:3px solid white;border-radius:16px;overflow:hidden;
+background:linear-gradient(90deg,#238b45 0 12.5%,#2b9b50 12.5% 25%,#238b45 25% 37.5%,#2b9b50 37.5% 50%,#238b45 50% 62.5%,#2b9b50 62.5% 75%,#238b45 75% 87.5%,#2b9b50 87.5%)}
+.mid{position:absolute;left:0;right:0;top:50%;border-top:2px solid #ffffffcc}
+.circle{position:absolute;left:50%;top:50%;width:27%;aspect-ratio:1;border:2px solid #ffffffaa;border-radius:50%;transform:translate(-50%,-50%)}
+.box{position:absolute;left:24%;width:52%;height:13%;border:2px solid #ffffffaa}.box.top{top:-2px}.box.bottom{bottom:-2px}
+.goal{position:absolute;left:38%;width:24%;height:3%;border:2px solid #fff}.goal.top{top:-2px}.goal.bottom{bottom:-2px}
+.teamtag{position:absolute;left:8px;font-size:11px;font-weight:900;opacity:.7}.teamtag.a{top:8px}.teamtag.b{bottom:8px}
+.player{position:absolute;transform:translate(-50%,-50%);text-align:center;touch-action:none;cursor:grab;z-index:3;transition:left .2s,top .2s}
+.player.dragging{transition:none}.dot{width:39px;height:39px;border-radius:50%;display:grid;place-items:center;border:3px solid white;font-size:12px;font-weight:900;box-shadow:0 2px 8px #0008}
+.a .dot{background:#2563eb}.b .dot{background:#dc2626}.gk .dot{background:#facc15;color:#111827;border-color:#111827}
+.name{margin-top:2px;background:#0f172ddd;padding:3px 5px;border-radius:6px;font-size:10px;font-weight:bold;max-width:78px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.note{text-align:center;color:#94a3b8;font-size:11px;margin-top:9px}
+button{width:100%;margin-top:9px;border:0;border-radius:10px;padding:10px;background:#334155;color:#fff;font-weight:bold}
+</style>
+</head>
+<body>
+<div class="app">
+ <div class="header"><h1>⚽ 7'ye 7 Halı Saha</h1><p>Mavi Takım vs Kırmızı Takım • Oyuncuya dokunarak ismini değiştir.</p></div>
+ <div class="controls">
+  <div class="control"><label>🔵 Mavi Takım Dizilişi</label><select id="formA"></select></div>
+  <div class="control"><label>🔴 Kırmızı Takım Dizilişi</label><select id="formB"></select></div>
+ </div>
+ <div class="pitch" id="pitch">
+   <div class="mid"></div><div class="circle"></div><div class="box top"></div><div class="box bottom"></div>
+   <div class="goal top"></div><div class="goal bottom"></div><div class="teamtag a">MAVİ TAKIM</div><div class="teamtag b">KIRMIZI TAKIM</div>
+ </div>
+ <div class="note">Oyuncular sürüklenebilir ancak kendi yarı sahalarının dışına çıkamaz.</div>
+ <button onclick="applyAll()">Dizilişleri Sıfırla</button>
+</div>
+<script>
+const forms={
+"3-2-1":[[24,39],[50,37],[76,39],[35,25],[65,25],[50,13]],
+"2-3-1":[[32,39],[68,39],[22,25],[50,23],[78,25],[50,12]],
+"2-2-2":[[32,39],[68,39],[35,25],[65,25],[35,12],[65,12]],
+"3-1-2":[[24,39],[50,37],[76,39],[50,25],[35,12],[65,12]]
+};
+const pitch=document.getElementById("pitch"), selects=[document.getElementById("formA"),document.getElementById("formB")];
+Object.keys(forms).forEach(f=>selects.forEach(s=>{let o=document.createElement("option");o.value=f;o.textContent=f;s.appendChild(o)}));
+selects[0].value="3-2-1";selects[1].value="2-3-1";
+let teams={A:[],B:[]};
+function createTeam(team){
+ for(let i=0;i<7;i++){
+  let p=document.createElement("div");p.className=`player ${team==="A"?"a":"b"} ${i===0?"gk":""}`;
+  p.innerHTML=`<div class="dot">${i===0?"GK":i}</div><div class="name">${i===0?"Kaleci":"Oyuncu "+i}</div>`;
+  p.onclick=()=>{if(p.dataset.dragged==="1"){p.dataset.dragged="0";return}let n=prompt("Oyuncu adı:",p.querySelector(".name").textContent);if(n&&n.trim())p.querySelector(".name").textContent=n.trim()};
+  pitch.appendChild(p);teams[team].push(p);drag(p,team);
+ }
+}
+function pos(p,x,y){p.style.left=x+"%";p.style.top=y+"%"}
+function apply(team,form){
+ let ps=teams[team];
+ if(team==="A"){pos(ps[0],50,5);forms[form].forEach((v,i)=>pos(ps[i+1],v[0],v[1]));}
+ else{pos(ps[0],50,95);forms[form].forEach((v,i)=>pos(ps[i+1],100-v[0],100-v[1]));}
+}
+function applyAll(){apply("A",selects[0].value);apply("B",selects[1].value)}
+selects[0].onchange=()=>apply("A",selects[0].value);selects[1].onchange=()=>apply("B",selects[1].value);
+function drag(p,team){
+ let sx,sy,moved=false;
+ p.addEventListener("pointerdown",e=>{sx=e.clientX;sy=e.clientY;moved=false;p.setPointerCapture(e.pointerId);p.classList.add("dragging")});
+ p.addEventListener("pointermove",e=>{
+  if(!p.hasPointerCapture(e.pointerId))return;if(Math.hypot(e.clientX-sx,e.clientY-sy)>5)moved=true;if(!moved)return;
+  let r=pitch.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*100,y=(e.clientY-r.top)/r.height*100;
+  x=Math.max(6,Math.min(94,x));
+  y=team==="A"?Math.max(4,Math.min(46,y)):Math.max(54,Math.min(96,y));
+  pos(p,x,y);
+ });
+ p.addEventListener("pointerup",()=>{p.classList.remove("dragging");p.dataset.dragged=moved?"1":"0"});
+}
+createTeam("A");createTeam("B");applyAll();
+</script>
+</body></html>
